@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import os
+from glob import glob
 
 package_name = 'my_robot'
 
@@ -10,21 +12,17 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'),
+            glob('launch/*.py')),
     ],
-    package_data={'': ['py.typed']},
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='HarshThorat239',
-    maintainer_email='harshthorat51@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
-    extras_require={
-        'test': [
-            'pytest',
-        ],
-    },
+    maintainer='your_name',
+    maintainer_email='your@email.com',
+    description='ROS2 SLAM and autonomous navigation',
+    license='MIT',
+    tests_require=['pytest'],
     entry_points={
-        'console_scripts': [
-        ],
+        'console_scripts': [],
     },
 )
