@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  ros2-slam-nav:
+    build: .
+    container_name: ros2_slam_nav
+    environment:
+      - DISPLAY=${DISPLAY}
+      - TURTLEBOT3_MODEL=waffle_pi
+      - ROS_DOMAIN_ID=0
+    volumes:
+      - .:/ros2_ws
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    network_mode: host
+    stdin_open: true
+    tty: true
+    command: bash

@@ -62,9 +62,9 @@ ros2-slam-nav/
 ├── maps/
 │   ├── turtlebot3_world.pgm    ← saved map image
 │   └── turtlebot3_world.yaml   ← map metadata
-├── build/
-├── install/
-└── log/
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
 ```
 
 ---
@@ -125,7 +125,7 @@ source install/setup.bash
 ros2 run my_robot patrol
 ```
 
-The node connects to Nav2's `navigate_to_pose` action, sends the robot to waypoint 1, waits for arrival, then sends waypoint 2, then 3, then loops back to 1 forever.
+The node connects to Nav2's `navigate_to_pose` action and loops through three waypoints indefinitely. It also subscribes to the `/scan` LiDAR topic — if any object is detected within 0.3m directly ahead, the robot reverses, stops, and waits for the path to clear before resuming patrol automatically.
 
 ---
 
@@ -172,6 +172,46 @@ source install/setup.bash
 
 ---
 
+## Running with Docker
+
+The easiest way to run this project without installing ROS2 manually.
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+- An X11 display server
+  - **Windows (WSL2):** Install [VcXsrv](https://sourceforge.net/projects/vcxsrv/) and launch it with "Disable access control" checked
+  - **Linux:** X11 is built in
+
+### Run
+
+```bash
+git clone https://github.com/your-username/ros2-slam-nav.git
+cd ros2-slam-nav
+docker compose up --build
+```
+
+Then in separate terminals:
+
+```bash
+# Terminal 1 — Gazebo simulation
+docker exec -it ros2_slam_nav bash
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+
+# Terminal 2 — Nav2 with saved map
+docker exec -it ros2_slam_nav bash
+ros2 launch turtlebot3_navigation2 navigation2.launch.py \
+  use_sim_time:=true \
+  map:=/ros2_ws/maps/turtlebot3_world.yaml
+
+# Terminal 3 — Patrol node
+docker exec -it ros2_slam_nav bash
+ros2 run my_robot patrol
+```
+
+---
+
 ## Key Concepts
 
 **Occupancy grid** — the map format used by SLAM and Nav2. Every cell is one of three states: free (white), occupied (black), or unknown (grey). Each cell represents a 5cm × 5cm area of the real world.
@@ -184,7 +224,6 @@ source install/setup.bash
 
 ## What's next
 
-- Add obstacle detection logic to the behaviour tree (stop if closer than 0.3m)
 - Expand to more waypoints
 - Test with a different Gazebo world
 - Port to real hardware
